@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 from pathlib import Path
+from decouple import  config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -128,3 +129,27 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     # "https://production-domain.com",
 ]
+
+# For local testing (prints emails to your terminal)
+if DEBUG:
+    MAILERS = {
+        "default": {
+            "BACKEND": "django.core.mail.backends.console.EmailBackend",
+        },
+    }
+else:
+    # For production (e.g., Gmail App Password, Resend, or SendGrid)
+    MAILERS = {
+        "default": {
+            "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
+            "OPTIONS": {
+                "host": "smtp.gmail.com",
+                "use_tls": True,
+                "username": config("EMAIL_HOST_USER"),
+                "password": config("EMAIL_HOST_PASSWORD"),
+            },
+        },
+    }
+
+DEFAULT_FROM_EMAIL = config("EMAIL_HOST_USER", default="webmaster@localhost")
+CONTACT_EMAIL = config('CONTACT_EMAIL')
