@@ -15,25 +15,30 @@ class ContactMessage(models.Model):
     def __str__(self):
         return f"{self.name} ———> {self.email}"
 
-class Skills(models.Model):
+class Skill(models.Model):
     tag=models.CharField(max_length=50)
+    def __str__(self):
+        return f"{self.tag}"
 
-class Projects(models.Model):
+class Project(models.Model):
     title = models.CharField(max_length=100)
     badge = models.CharField(max_length=50)
     description = models.TextField()
-    tag=models.ManyToManyField(Skills,related_name="used_skills",blank=True)
+    tag=models.ManyToManyField(Skill, related_name="used_skills", blank=True)
     github = models.URLField(blank=True, null=True)
     demo = models.URLField(blank=True, null=True)
 
+    def __str__(self):
+        return f"{self.title}"
+
 
 class ProjectImage(models.Model):
-    project = models.ForeignKey(Projects, on_delete=models.CASCADE,related_name="project_images")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="project_images")
     image = models.ImageField(upload_to="project_images/", blank=True, null=True)
     image_alt=models.CharField(max_length=100)
 
 class ProjectVideo(models.Model):
-    project = models.ForeignKey(Projects, on_delete=models.CASCADE, related_name="project_videos")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="project_videos")
     video = models.FileField(
         upload_to="project_videos/",
         blank=True,

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import  Skills,Projects,ProjectImage,ProjectVideo
+from .models import  Skill,Project,ProjectImage,ProjectVideo
 
 # Register your models here.
 
@@ -11,9 +11,9 @@ class ProjectVideoInline(admin.TabularInline):
     model = ProjectVideo
     extra = 1
 
+admin.site.register(Skill)
 
-@admin.register(Projects)
+@admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     inlines = [ProjectImageInline,ProjectVideoInline]
 
-admin.register(Skills)
