@@ -5,12 +5,18 @@ from rest_framework import (status,
                             permissions,
                             throttling,
                             viewsets)
-from rest_framework.permissions import _SupportsHasPermission
 from rest_framework.response import Response
 from django.core.mail import EmailMessage
 from django.conf import settings
 from .models import Project
 from .serializers import ContactMessageSerializer, ProjectSerializer
+
+
+class IsAdminOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return bool(request.user and request.user.is_staff)
 
 
 class ContactRateThrottle(throttling.AnonRateThrottle):
@@ -52,5 +58,6 @@ class ContactApiView(views.APIView):
 
 
 class ProjectsViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.prefetch_related('tag','project_images','project_videos').all()
+    queryset = Project.objects.prefetch_related('tag', 'project_images', 'project_videos').all()
     serializer_class = ProjectSerializer
+    permission_classes = [IsAdminOrReadOnly]
