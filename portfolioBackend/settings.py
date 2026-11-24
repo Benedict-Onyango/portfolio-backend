@@ -11,11 +11,13 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 from pathlib import Path
-from decouple import config
-from django.conf.global_settings import MEDIA_URL
+from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -27,9 +29,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="127.0.0.1,localhost", cast=Csv())
 
 # Application definition
 
@@ -128,11 +130,11 @@ MAILERS = {
     },
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    # "https://production-domain.com",
-]
+CORS_ALLOWED_ORIGINS = config(
+    "CORS_ALLOWED_ORIGINS",
+    default="http://localhost:5173,http://localhost:3000",
+    cast=Csv()
+)
 
 # For local testing (prints emails to your terminal)
 if DEBUG:
@@ -157,3 +159,8 @@ else:
 
 DEFAULT_FROM_EMAIL = config("EMAIL_HOST_USER", default="webmaster@localhost")
 CONTACT_EMAIL = config('CONTACT_EMAIL')
+
+if not DEBUG:
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
