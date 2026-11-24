@@ -68,3 +68,4 @@ class ProjectSerializer(serializers.ModelSerializer):
 
         for vid in uploaded_videos:
             ProjectVideo.objects.create(project=project,video=vid,caption=f"Overview of {project.title}")
+        return project

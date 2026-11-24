@@ -1,9 +1,14 @@
-from rest_framework import status, views, permissions, throttling
+from rest_framework import (status,
+                            views,
+                            permissions,
+                            throttling,
+                            parsers,
+                            viewsets)
 from rest_framework.response import Response
 from django.core.mail import EmailMessage
-from django.core import servers
 from django.conf import settings
-from .serializers import ContactMessageSerializer
+from .models import Project
+from .serializers import ContactMessageSerializer, ProjectSerializer
 
 
 class ContactRateThrottle(throttling.AnonRateThrottle):
@@ -42,3 +47,9 @@ class ContactApiView(views.APIView):
             )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProjectsViewSet(viewsets.ModelViewSet):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser]
