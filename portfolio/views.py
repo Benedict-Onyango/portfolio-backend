@@ -1,9 +1,11 @@
+from typing import Sequence
+
 from rest_framework import (status,
                             views,
                             permissions,
                             throttling,
-                            parsers,
                             viewsets)
+from rest_framework.permissions import _SupportsHasPermission
 from rest_framework.response import Response
 from django.core.mail import EmailMessage
 from django.conf import settings
@@ -50,6 +52,5 @@ class ContactApiView(views.APIView):
 
 
 class ProjectsViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all()
+    queryset = Project.objects.prefetch_related('tag','project_images','project_videos').all()
     serializer_class = ProjectSerializer
-    parser_classes = [parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser]

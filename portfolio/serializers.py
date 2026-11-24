@@ -26,20 +26,19 @@ class ProjectImageSerializer(serializers.ModelSerializer):
 
 
 class ProjectVideoSerializer(serializers.ModelSerializer):
-    model = ProjectVideo
-    fields = ['id', 'video', 'caption']
+    class Meta:
+        model = ProjectVideo
+        fields = ['id', 'video', 'caption']
 
+class SkillSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Skill
+        fields=['id','tag']
 
 class ProjectSerializer(serializers.ModelSerializer):
+    tag=SkillSerializer(many=True, read_only=True)
     project_images = ProjectImageSerializer(many=True, read_only=True)
     project_videos = ProjectVideoSerializer(many=True, read_only=True)
-
-    uploaded_images = serializers.ListField(
-        child=serializers.ImageField(), write_only=True, required=False
-    )
-    uploaded_videos = serializers.ListField(
-        child=serializers.FileField(), write_only=True, required=True
-    )
 
     class Meta:
         model = Project
@@ -51,21 +50,6 @@ class ProjectSerializer(serializers.ModelSerializer):
             'tag',
             'github',
             'demo',
-            'project_images', 'project_videos',
-            'uploaded_images', 'uploaded_videos'
+            'project_images',
+            'project_videos',
         ]
-
-    def create(self, validated_data):
-        uploaded_images = validated_data.pop('uploaded_images', [])
-        uploaded_videos = validated_data.pop('uploaded_videos', [])
-        tags= validated_data.pop('tag',[])
-
-        project=Project.objects.create(**validated_data)
-        project.tag.set(tags)
-
-        for img in uploaded_images:
-            ProjectImage.objects.create(project=project,image=img,image_alt=f"image of {project.title}")
-
-        for vid in uploaded_videos:
-            ProjectVideo.objects.create(project=project,video=vid,caption=f"Overview of {project.title}")
-        return project
